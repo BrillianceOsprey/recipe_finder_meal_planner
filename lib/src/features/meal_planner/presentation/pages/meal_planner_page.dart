@@ -1,20 +1,25 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collection/collection.dart';
+import 'package:recipe_finder_meal_planner/src/core/providers/connectivity_provider.dart';
+import 'package:recipe_finder_meal_planner/src/core/widgets/offline_dialog.dart';
 
 import '../../../favorites/presentation/controllers/favorite_recipes_provider.dart';
 import '../../../recipe_details/presentation/pages/recipe_detail_page.dart';
 import '../../../recipe_search/domain/models/recipe.dart';
 import '../controllers/meal_plan_providers.dart';
 
-class MealPlannerPage extends ConsumerWidget {
+class MealPlannerPage extends HookConsumerWidget {
   const MealPlannerPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final connectivityResult = ref.watch(connectivityProvider);
     final mealPlanState = ref.watch(mealPlanControllerProvider);
+    final mealPlanAsync = ref.read(mealPlanControllerProvider.notifier);
     final favoriteRecipesAsync = ref.watch(favoriteRecipesProvider);
-    print("Meal Plan Data ${mealPlanState.mealPlan.days}");
 
     final daysOfWeek = [
       'Monday',
@@ -26,9 +31,14 @@ class MealPlannerPage extends ConsumerWidget {
       'Sunday'
     ];
 
+    useEffect(() {
+      Future.microtask(() {
+        mealPlanAsync.load();
+      });
+      return null;
+    }, []);
     return Scaffold(
       appBar: AppBar(
-        // title: const Text('Meal Planner'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -39,22 +49,113 @@ class MealPlannerPage extends ConsumerWidget {
             onPressed: () async {
               final confirm = await showDialog<bool>(
                 context: context,
+                barrierDismissible: false,
                 builder: (context) => AlertDialog(
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  title: const Text("Clear All Meal Plans?"),
-                  content: const Text(
-                    "This will remove all recipes from every day. Are you sure?",
+                    borderRadius: BorderRadius.circular(24),
                   ),
+                  title: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.delete_outline,
+                          color: Colors.red[600],
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        "Clear All Meal Plans?",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "This will remove all recipes from every day. This action cannot be undone.",
+                        style: TextStyle(
+                          fontSize: 16,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.amber[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.amber[200]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.warning_amber_outlined,
+                              color: Colors.amber[700],
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "Are you sure you want to continue?",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.amber[800],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                   actions: [
                     TextButton(
-                      child: const Text("Cancel"),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       onPressed: () => Navigator.of(context).pop(false),
                     ),
-                    ElevatedButton(
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent),
-                      child: const Text("Clear All"),
+                        backgroundColor: Colors.red[600],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 0,
+                      ),
+                      icon: const Icon(Icons.delete, size: 18),
+                      label: const Text(
+                        "Clear All",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                       onPressed: () => Navigator.of(context).pop(true),
                     ),
                   ],
@@ -75,9 +176,12 @@ class MealPlannerPage extends ConsumerWidget {
         children: [
           // Gradient background
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF43cea2), Color(0xFF185a9d)],
+                colors: [
+                  Color(0xFFFF6B6B),
+                  Color(0xFFFFE66D),
+                ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -140,7 +244,12 @@ class MealPlannerPage extends ConsumerWidget {
                       itemBuilder: (context, dayIdx) {
                         final day = daysOfWeek[dayIdx];
                         final recipeIds =
-                            mealPlanState.mealPlan.days[day] ?? [];
+                            mealPlanState.mealPlan.recipesByday[day] ?? [];
+
+                        // Retrieve the Recipe objects using their IDs
+                        final recipes = favorites.where((recipe) {
+                          return recipeIds.contains(recipe.id);
+                        }).toList();
 
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 400),
@@ -159,6 +268,9 @@ class MealPlannerPage extends ConsumerWidget {
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 17),
                               ),
+                              subtitle: Text(
+                                '${recipes.length} recipes',
+                              ),
                               leading: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.teal[100],
@@ -169,7 +281,7 @@ class MealPlannerPage extends ConsumerWidget {
                                     color: Colors.teal[700]),
                               ),
                               children: [
-                                if (recipeIds.isEmpty)
+                                if (recipes.isEmpty)
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 22.0),
@@ -195,17 +307,7 @@ class MealPlannerPage extends ConsumerWidget {
                                     ),
                                   )
                                 else
-                                  ...recipeIds.map((id) {
-                                    final recipe = favorites
-                                        .firstWhereOrNull((r) => r.id == id);
-                                    if (recipe == null) {
-                                      return ListTile(
-                                        leading: const Icon(Icons.error,
-                                            color: Colors.redAccent),
-                                        title: const Text(
-                                            'Recipe not found (maybe deleted from favorites)'),
-                                      );
-                                    }
+                                  ...recipes.map((recipe) {
                                     return AnimatedSwitcher(
                                       duration:
                                           const Duration(milliseconds: 400),
@@ -215,12 +317,26 @@ class MealPlannerPage extends ConsumerWidget {
                                           borderRadius:
                                               BorderRadius.circular(10),
                                           child: recipe.image != null
-                                              ? Image.network(recipe.image!,
+                                              ? CachedNetworkImage(
+                                                  imageUrl: recipe.image!,
                                                   width: 46,
                                                   height: 46,
-                                                  fit: BoxFit.cover)
-                                              : const Icon(Icons.restaurant,
-                                                  size: 46, color: Colors.teal),
+                                                  fit: BoxFit.cover,
+                                                  placeholder: (context, url) =>
+                                                      const CircularProgressIndicator(), // Show a loading indicator while the image is loading
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          const Icon(
+                                                    Icons.restaurant,
+                                                    size: 46,
+                                                    color: Colors.teal,
+                                                  ), // Show an error icon if the image fails to load
+                                                )
+                                              : const Icon(
+                                                  Icons.restaurant,
+                                                  size: 46,
+                                                  color: Colors.teal,
+                                                ),
                                         ),
                                         title: Text(
                                           recipe.title,
@@ -228,11 +344,41 @@ class MealPlannerPage extends ConsumerWidget {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         onTap: () {
-                                          Navigator.of(context)
-                                              .push(MaterialPageRoute(
-                                            builder: (_) => RecipeDetailPage(
-                                                recipeId: recipe.id),
-                                          ));
+                                          connectivityResult.whenData((value) {
+                                            bool isOnline = value ==
+                                                    ConnectivityResult.wifi ||
+                                                value ==
+                                                    ConnectivityResult.mobile;
+                                            if (isOnline) {
+                                              Navigator.of(context)
+                                                  .push(MaterialPageRoute(
+                                                builder: (_) =>
+                                                    RecipeDetailPage(
+                                                        recipeId: recipe.id),
+                                              ));
+                                            } else {
+                                              showDialog(
+                                                context: context,
+                                                barrierDismissible: false,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return OfflineAlertDialog(
+                                                    title: "Connection Lost",
+                                                    message:
+                                                        "Please check your internet connection and try again.",
+                                                    onRetry: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                    onCancel: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                  );
+                                                },
+                                              );
+                                            }
+                                          });
                                         },
                                         trailing: IconButton(
                                           icon: const Icon(Icons.close),
@@ -240,7 +386,7 @@ class MealPlannerPage extends ConsumerWidget {
                                             ref
                                                 .read(mealPlanControllerProvider
                                                     .notifier)
-                                                .removeRecipe(day, id);
+                                                .removeRecipe(day, recipe.id);
                                           },
                                           tooltip: "Remove from $day",
                                         ),
@@ -269,16 +415,18 @@ class MealPlannerPage extends ConsumerWidget {
                                             context,
                                             day,
                                             ref,
-                                            recipeIds,
+                                            recipes,
                                             favorites,
                                           );
                                         },
                                       ),
                                       const Spacer(),
-                                      if (recipeIds.isNotEmpty)
+                                      if (recipes.isNotEmpty)
                                         TextButton.icon(
-                                          icon: const Icon(Icons.delete_outline,
-                                              color: Colors.redAccent),
+                                          icon: const Icon(
+                                            Icons.delete_outline,
+                                            color: Colors.redAccent,
+                                          ),
                                           label: const Text('Clear Day',
                                               style: TextStyle(
                                                   color: Colors.redAccent)),
@@ -318,7 +466,7 @@ class MealPlannerPage extends ConsumerWidget {
     BuildContext context,
     String day,
     WidgetRef ref,
-    List<int> recipeIdsForDay,
+    List<Recipe> recipesForDay,
     List<Recipe> favorites,
   ) {
     showModalBottomSheet(
@@ -351,16 +499,24 @@ class MealPlannerPage extends ConsumerWidget {
                           itemBuilder: (context, idx) {
                             final recipe = favorites[idx];
                             final isAlreadyAdded =
-                                recipeIdsForDay.contains(recipe.id);
+                                recipesForDay.contains(recipe);
                             return ListTile(
                               leading: recipe.image != null
                                   ? ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: Image.network(
-                                        recipe.image!,
+                                      child: CachedNetworkImage(
+                                        imageUrl: recipe.image!,
                                         width: 48,
                                         height: 48,
                                         fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            const CircularProgressIndicator(), // Show a loading indicator while the image is loading
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(
+                                          Icons.restaurant,
+                                          size: 48,
+                                          color: Colors.teal,
+                                        ), // Show an error icon if the image fails to load
                                       ),
                                     )
                                   : const Icon(Icons.restaurant, size: 48),
@@ -377,7 +533,7 @@ class MealPlannerPage extends ConsumerWidget {
                                       ref
                                           .read(mealPlanControllerProvider
                                               .notifier)
-                                          .addRecipe(day, recipe.id);
+                                          .addRecipe(day, recipe);
                                       Navigator.of(ctx).pop();
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(

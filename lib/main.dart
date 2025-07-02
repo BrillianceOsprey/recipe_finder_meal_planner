@@ -8,9 +8,10 @@ import 'src/features/meal_planner/domain/models/meal_plan.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  Hive.registerAdapter(RecipeAdapter());
   Hive.registerAdapter(MealPlanAdapter());
+  Hive.registerAdapter(RecipeAdapter());
   await Hive.openBox<Recipe>('favorite_recipes');
+  await Hive.openBox<MealPlan>('main');
   await dotenv.load(fileName: ".env");
   runApp(const App());
 }

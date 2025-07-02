@@ -17,7 +17,7 @@ class MealPlanAdapter extends TypeAdapter<MealPlan> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return MealPlan(
-      days: (fields[0] as Map).map((dynamic k, dynamic v) =>
+      recipesByday: (fields[0] as Map).map((dynamic k, dynamic v) =>
           MapEntry(k as String, (v as List).cast<int>())),
     );
   }
@@ -27,7 +27,7 @@ class MealPlanAdapter extends TypeAdapter<MealPlan> {
     writer
       ..writeByte(1)
       ..writeByte(0)
-      ..write(obj.days);
+      ..write(obj.recipesByday);
   }
 
   @override

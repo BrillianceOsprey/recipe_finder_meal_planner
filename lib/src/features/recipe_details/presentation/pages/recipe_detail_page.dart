@@ -31,7 +31,8 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
     final state = ref.watch(recipeDetailControllerProvider);
     final favorites = ref.watch(favoritesProvider);
     final favoritesNotifier = ref.read(favoritesProvider.notifier);
-    final isFav = favorites.contains(state.recipeDetail?.id ?? 0);
+    // final isFav = favorites.contains(state.recipeDetail?.id ?? 0);
+    final isFav = favorites.any((r) => r.id == state.recipeDetail?.id);
 
     if (state.status == RecipeDetailStatus.loading) {
       return const RecipeDetailShimmer();

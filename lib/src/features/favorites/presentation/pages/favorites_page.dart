@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:connectivity_plus/connectivity_plus.dart'; // Import connectivity_plus
 import '../../../../core/providers/connectivity_provider.dart';
+import '../../../../core/widgets/offline_dialog.dart';
 import '../../../recipe_details/presentation/pages/recipe_detail_page.dart';
 import '../controllers/favorite_provider.dart';
 import '../controllers/favorite_recipes_provider.dart';
@@ -19,10 +21,27 @@ class FavoritesPage extends ConsumerWidget {
     final favoritesNotifier = ref.read(favoritesProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Favorites'),
-        centerTitle: true,
-        elevation: 0,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60), // Customize the height as needed
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFFF6B6B),
+                Color(0xFFFFE66D),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: AppBar(
+            title: const Text('Favorites'),
+            centerTitle: false,
+            backgroundColor:
+                Colors.transparent, // Transparent so gradient is visible
+            elevation: 0, // Remove shadow
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -90,11 +109,24 @@ class FavoritesPage extends ConsumerWidget {
                                     borderRadius: const BorderRadius.vertical(
                                         top: Radius.circular(20)),
                                     child: recipe.image != null
-                                        ? Image.network(
-                                            recipe.image!,
+                                        ? CachedNetworkImage(
+                                            imageUrl: recipe.image!,
                                             height: 120,
-                                            width: double.infinity,
                                             fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                SizedBox(
+                                              height: 50,
+                                              width: 50,
+                                              child:
+                                                  const CircularProgressIndicator(),
+                                            ), // Show a loading indicator while the image is loading
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const Icon(
+                                              Icons.restaurant,
+                                              size: 46,
+                                              color: Colors.teal,
+                                            ), // Show an error icon if the image fails to load
                                           )
                                         : Container(
                                             height: 120,
@@ -138,10 +170,10 @@ class FavoritesPage extends ConsumerWidget {
                                     recipe.title,
                                     maxLines: 3,
                                     overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.teal[800], // Dark Teal Text
+                                    ),
                                   ),
                                 ),
                               ),
@@ -153,7 +185,7 @@ class FavoritesPage extends ConsumerWidget {
                   );
                 } else {
                   // If offline, show locally saved recipes and an offline message
-                  return _OfflineMessage(ref);
+                  return _offlineMessage(ref);
                 }
               },
             );
@@ -167,7 +199,7 @@ class FavoritesPage extends ConsumerWidget {
   }
 
   // Offline message with locally saved recipes
-  Widget _OfflineMessage(WidgetRef ref) {
+  Widget _offlineMessage(WidgetRef ref) {
     final localRecipes =
         ref.watch(favoriteRecipesProvider); // Fetch local recipes if offline
     return Center(
@@ -199,13 +231,33 @@ class FavoritesPage extends ConsumerWidget {
                   itemBuilder: (context, idx) {
                     final recipe = recipes[idx];
                     return GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                RecipeDetailPage(recipeId: recipe.id),
-                          ),
+                      onTap: () async {
+                        // Offline case :Myat Soe
+
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return OfflineAlertDialog(
+                              title: "Connection Lost",
+                              message:
+                                  "Please check your internet connection and try again.",
+                              onRetry: () {
+                                Navigator.of(context).pop();
+                              },
+                              onCancel: () {
+                                Navigator.of(context).pop();
+                              },
+                            );
+                          },
                         );
+
+                        // Navigator.of(context).push(
+                        //   MaterialPageRoute(
+                        //     builder: (_) =>
+                        //         RecipeDetailPage(recipeId: recipe.id),
+                        //   ),
+                        // );
                       },
                       child: Card(
                         shape: RoundedRectangleBorder(
@@ -222,11 +274,23 @@ class FavoritesPage extends ConsumerWidget {
                                   borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(20)),
                                   child: recipe.image != null
-                                      ? Image.network(
-                                          recipe.image!,
+                                      ? CachedNetworkImage(
+                                          imageUrl: recipe.image!,
                                           height: 120,
-                                          width: double.infinity,
                                           fit: BoxFit.cover,
+                                          placeholder: (context, url) =>
+                                              SizedBox(
+                                            height: 50,
+                                            width: 50,
+                                            child:
+                                                const CircularProgressIndicator(),
+                                          ), // Show a loading indicator while the image is loading
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(
+                                            Icons.restaurant,
+                                            size: 46,
+                                            color: Colors.teal,
+                                          ), // Show an error icon if the image fails to load
                                         )
                                       : Container(
                                           height: 120,
@@ -271,10 +335,10 @@ class FavoritesPage extends ConsumerWidget {
                                   recipe.title,
                                   maxLines: 3,
                                   overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.teal[800], // Dark Teal Text
+                                  ),
                                 ),
                               ),
                             ),

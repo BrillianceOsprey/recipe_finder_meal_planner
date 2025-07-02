@@ -1,16 +1,17 @@
 import 'package:hive/hive.dart';
+import '../../../recipe_search/domain/models/recipe.dart';
 
 part 'meal_plan.g.dart';
 
 @HiveType(typeId: 1)
 class MealPlan extends HiveObject {
   @HiveField(0)
-  Map<String, List<int>> days; // 'Monday': [recipeId1, recipeId2], etc.
+  Map<String, List<int>> recipesByday; // Store Recipe IDs
 
-  MealPlan({required this.days});
+  MealPlan({required this.recipesByday});
 
   factory MealPlan.empty() {
-    return MealPlan(days: {
+    return MealPlan(recipesByday: {
       'Monday': [],
       'Tuesday': [],
       'Wednesday': [],

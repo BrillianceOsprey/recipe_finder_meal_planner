@@ -12,7 +12,7 @@ class MealPlanLocalDatasource {
     final box = await _openBox();
     if (box.isEmpty) {
       final empty = MealPlan.empty();
-      await box.put('main', empty);
+      await box.put('main', empty); // Store the empty meal plan
       return empty;
     }
     return box.get('main')!;
@@ -20,6 +20,6 @@ class MealPlanLocalDatasource {
 
   Future<void> saveMealPlan(MealPlan mealPlan) async {
     final box = await _openBox();
-    await box.put('main', mealPlan);
+    await box.put('main', mealPlan); // Save meal plan
   }
 }

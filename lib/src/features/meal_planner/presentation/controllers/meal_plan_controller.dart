@@ -1,12 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/meal_plan_repository.dart';
 import '../../domain/models/meal_plan.dart';
+import '../../../recipe_search/domain/models/recipe.dart';
 
 class MealPlanState {
   final MealPlan mealPlan;
   final bool loading;
   final String? error;
+
   MealPlanState({required this.mealPlan, this.loading = false, this.error});
+
   MealPlanState copyWith({MealPlan? mealPlan, bool? loading, String? error}) =>
       MealPlanState(
         mealPlan: mealPlan ?? this.mealPlan,
@@ -17,6 +20,7 @@ class MealPlanState {
 
 class MealPlanController extends StateNotifier<MealPlanState> {
   final MealPlanRepository repository;
+
   MealPlanController(this.repository)
       : super(MealPlanState(mealPlan: MealPlan.empty()));
 
@@ -30,28 +34,28 @@ class MealPlanController extends StateNotifier<MealPlanState> {
     }
   }
 
-  Future<void> addRecipe(String day, int recipeId) async {
-    final days = Map<String, List<int>>.from(state.mealPlan.days);
-    if (!days[day]!.contains(recipeId)) {
-      days[day] = [...days[day]!, recipeId];
-      final updated = MealPlan(days: days);
+  Future<void> addRecipe(String day, Recipe recipe) async {
+    final days = Map<String, List<int>>.from(state.mealPlan.recipesByday);
+    if (!days[day]!.contains(recipe.id)) {
+      days[day] = [...days[day]!, recipe.id];
+      final updated = MealPlan(recipesByday: days);
       await repository.saveMealPlan(updated);
       state = state.copyWith(mealPlan: updated);
     }
   }
 
   Future<void> removeRecipe(String day, int recipeId) async {
-    final days = Map<String, List<int>>.from(state.mealPlan.days);
-    days[day] = days[day]!..remove(recipeId);
-    final updated = MealPlan(days: days);
+    final days = Map<String, List<int>>.from(state.mealPlan.recipesByday);
+    days[day]?.remove(recipeId);
+    final updated = MealPlan(recipesByday: days);
     await repository.saveMealPlan(updated);
     state = state.copyWith(mealPlan: updated);
   }
 
   Future<void> clearDay(String day) async {
-    final days = Map<String, List<int>>.from(state.mealPlan.days);
+    final days = Map<String, List<int>>.from(state.mealPlan.recipesByday);
     days[day] = [];
-    final updated = MealPlan(days: days);
+    final updated = MealPlan(recipesByday: days);
     await repository.saveMealPlan(updated);
     state = state.copyWith(mealPlan: updated);
   }
