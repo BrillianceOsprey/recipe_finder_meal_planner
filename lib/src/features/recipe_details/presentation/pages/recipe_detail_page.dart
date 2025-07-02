@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recipe_finder_meal_planner/src/core/utils/html_utils.dart';
+import 'package:recipe_finder_meal_planner/src/features/recipe_search/domain/models/recipe.dart';
 import '../../../favorites/presentation/controllers/favorite_provider.dart';
 import '../controllers/recipe_detail_controller.dart';
 import '../controllers/recipe_detail_providers.dart';
@@ -110,7 +111,14 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
                         if (isFav) {
                           favoritesNotifier.removeFavorite(detail.id);
                         } else {
-                          favoritesNotifier.addFavorite(detail.id);
+                          favoritesNotifier.addFavorite(
+                            Recipe(
+                              id: detail.id,
+                              title: detail.title,
+                              image: detail.image,
+                              imageType: 'png',
+                            ),
+                          );
                         }
                       },
                     ),

@@ -21,6 +21,9 @@ class _RecipeSearchPageState extends ConsumerState<RecipeSearchPage> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    Future.microtask(() {
+      _onSearch();
+    });
   }
 
   @override

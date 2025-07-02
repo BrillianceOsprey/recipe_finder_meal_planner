@@ -1,23 +1,27 @@
 import 'package:hive/hive.dart';
+import '../../../recipe_search/domain/models/recipe.dart';
 
 class FavoriteLocalDatasource {
   static const boxName = 'favorite_recipes';
-  final Box<int> _box;
+  final Box<Recipe> _box;
 
   FavoriteLocalDatasource(this._box);
 
-  List<int> getFavoriteIds() => _box.values.toList();
+  List<Recipe> getFavoriteRecipes() => _box.values.toList();
 
-  bool isFavorite(int recipeId) => _box.values.contains(recipeId);
+  bool isFavorite(int recipeId) {
+    return _box.values.any((recipe) => recipe.id == recipeId);
+  }
 
-  Future<void> addFavorite(int recipeId) async {
-    if (!isFavorite(recipeId)) {
-      await _box.add(recipeId);
+  Future<void> addFavorite(Recipe recipe) async {
+    if (!isFavorite(recipe.id)) {
+      await _box.add(recipe);
     }
   }
 
   Future<void> removeFavorite(int recipeId) async {
-    final key = _box.keys.firstWhere((k) => _box.get(k) == recipeId, orElse: () => null);
+    final key = _box.keys
+        .firstWhere((k) => _box.get(k)?.id == recipeId, orElse: () => null);
     if (key != null) {
       await _box.delete(key);
     }

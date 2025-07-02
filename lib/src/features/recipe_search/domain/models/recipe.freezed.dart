@@ -15,9 +15,13 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$Recipe {
+  @HiveField(0)
   int get id;
+  @HiveField(1)
   String get title;
+  @HiveField(2)
   String? get image;
+  @HiveField(3)
   String? get imageType;
 
   /// Create a copy of Recipe
@@ -57,7 +61,11 @@ abstract mixin class $RecipeCopyWith<$Res> {
   factory $RecipeCopyWith(Recipe value, $Res Function(Recipe) _then) =
       _$RecipeCopyWithImpl;
   @useResult
-  $Res call({int id, String title, String? image, String? imageType});
+  $Res call(
+      {@HiveField(0) int id,
+      @HiveField(1) String title,
+      @HiveField(2) String? image,
+      @HiveField(3) String? imageType});
 }
 
 /// @nodoc
@@ -102,16 +110,23 @@ class _$RecipeCopyWithImpl<$Res> implements $RecipeCopyWith<$Res> {
 @JsonSerializable()
 class _Recipe implements Recipe {
   const _Recipe(
-      {required this.id, required this.title, this.image, this.imageType});
+      {@HiveField(0) required this.id,
+      @HiveField(1) required this.title,
+      @HiveField(2) this.image,
+      @HiveField(3) this.imageType});
   factory _Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 
   @override
+  @HiveField(0)
   final int id;
   @override
+  @HiveField(1)
   final String title;
   @override
+  @HiveField(2)
   final String? image;
   @override
+  @HiveField(3)
   final String? imageType;
 
   /// Create a copy of Recipe
@@ -157,7 +172,11 @@ abstract mixin class _$RecipeCopyWith<$Res> implements $RecipeCopyWith<$Res> {
       __$RecipeCopyWithImpl;
   @override
   @useResult
-  $Res call({int id, String title, String? image, String? imageType});
+  $Res call(
+      {@HiveField(0) int id,
+      @HiveField(1) String title,
+      @HiveField(2) String? image,
+      @HiveField(3) String? imageType});
 }
 
 /// @nodoc
