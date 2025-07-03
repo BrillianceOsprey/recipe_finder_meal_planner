@@ -5,7 +5,12 @@ import 'package:recipe_finder_meal_planner/src/features/recipe_search/domain/mod
 import '../../../favorites/presentation/controllers/favorite_provider.dart';
 import '../controllers/recipe_detail_controller.dart';
 import '../controllers/recipe_detail_providers.dart';
+import '../widgets/about_section.dart';
+import '../widgets/ingredients_section.dart';
+import '../widgets/instructions_section.dart';
+import '../widgets/nutrition_section.dart';
 import '../widgets/recipe_detail_shimmer.dart';
+import '../widgets/info_icon_text.dart';
 
 class RecipeDetailPage extends ConsumerStatefulWidget {
   final int recipeId;
@@ -31,18 +36,17 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
     final state = ref.watch(recipeDetailControllerProvider);
     final favorites = ref.watch(favoritesProvider);
     final favoritesNotifier = ref.read(favoritesProvider.notifier);
-    // final isFav = favorites.contains(state.recipeDetail?.id ?? 0);
     final isFav = favorites.any((r) => r.id == state.recipeDetail?.id);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (state.status == RecipeDetailStatus.loading) {
       return const RecipeDetailShimmer();
     } else if (state.status == RecipeDetailStatus.error) {
-      return Scaffold(body: Center(child: Text(state.error ?? 'Error')));
+      return errorWidget(state, isDark);
     } else if (state.status == RecipeDetailStatus.loaded &&
         state.recipeDetail != null) {
       final detail = state.recipeDetail!;
 
-      // Calories calculation - safe
       final calories = (detail.nutrition?.nutrients ?? [])
           .where((n) => n.name.toLowerCase().contains('calorie'))
           .toList();
@@ -54,40 +58,14 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
         backgroundColor: Colors.grey[100],
         body: CustomScrollView(
           slivers: [
-            // Parallax SliverAppBar with Hero Image
             SliverAppBar(
               expandedHeight: 280,
               pinned: true,
               foregroundColor: Colors.white,
               stretch: true,
+              backgroundColor: Colors.green[700],
               flexibleSpace: FlexibleSpaceBar(
-                background: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Hero(
-                      tag: 'recipe_image_${detail.id}',
-                      child: Image.network(
-                        detail.image!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (c, o, s) =>
-                            const ColoredBox(color: Colors.grey),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.black26,
-                            Colors.transparent,
-                            Colors.black12
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                background: _buildHeaderImage(detail.image!, detail.id),
                 title: Text(
                   detail.title,
                   maxLines: 2,
@@ -100,186 +78,57 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
                 titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
               ),
               actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0, top: 8),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white70,
-                    child: IconButton(
-                      icon: Icon(
-                        isFav ? Icons.favorite : Icons.favorite_border,
-                        color: Colors.red[400],
-                      ),
-                      onPressed: () {
-                        if (isFav) {
-                          favoritesNotifier.removeFavorite(detail.id);
-                        } else {
-                          favoritesNotifier.addFavorite(
-                            Recipe(
-                              id: detail.id,
-                              title: detail.title,
-                              image: detail.image,
-                              imageType: 'png',
-                            ),
-                          );
-                        }
-                      },
-                    ),
+                _buildFavoriteButton(
+                  isFav,
+                  favoritesNotifier,
+                  Recipe(
+                    id: detail.id,
+                    title: detail.title,
+                    image: detail.image,
+                    imageType: 'png',
                   ),
-                )
+                ),
               ],
-              backgroundColor: Colors.green[700],
             ),
-
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(18.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Quick Info Card
                     Card(
+                      color: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18)),
-                      elevation: 3,
+                      elevation: 2,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 18, horizontal: 14),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _InfoIconText(
+                            InfoIconText(
                                 icon: Icons.timer,
                                 label: "${detail.readyInMinutes} min"),
-                            _InfoIconText(
+                            InfoIconText(
                                 icon: Icons.restaurant,
                                 label: "Serves ${detail.servings}"),
-                            _InfoIconText(
-                              icon: Icons.star,
-                              label: caloriesLabel,
-                            ),
+                            InfoIconText(
+                                icon: Icons.star, label: caloriesLabel),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 18),
                     if (detail.summary != null)
-                      Text(
-                        parseHtmlString(detail.summary!),
-                        style: const TextStyle(
-                            fontSize: 15, color: Colors.black87),
-                      ),
-                    const SizedBox(height: 28),
-
-                    // Ingredients Section
-                    Text("Ingredients",
-                        style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 12),
-                    Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18)),
-                      elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          children: [
-                            for (final e in detail.extendedIngredients ?? [])
-                              Chip(
-                                avatar: e.image != null
-                                    ? CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                          'https://spoonacular.com/cdn/ingredients_100x100/${e.image}',
-                                        ),
-                                      )
-                                    : null,
-                                label: Text(e.name),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-
-                    // Instructions Section
-                    Text("Instructions",
-                        style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 12),
-                    Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18)),
-                      elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (detail.analyzedInstructions != null &&
-                                detail.analyzedInstructions!.isNotEmpty)
-                              ...detail.analyzedInstructions!.first.steps.map(
-                                (step) => Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      margin: const EdgeInsets.only(
-                                          top: 2, right: 12),
-                                      child: CircleAvatar(
-                                        backgroundColor: Colors.green[400],
-                                        radius: 16,
-                                        child: Text('${step.number}',
-                                            style: const TextStyle(
-                                                color: Colors.white)),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(top: 3),
-                                        child: Text(step.step,
-                                            style:
-                                                const TextStyle(fontSize: 15)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // Nutrition Section
+                      AboutSection(summary: parseHtmlString(detail.summary!)),
+                    IngredientsSection(
+                        ingredients: detail.extendedIngredients ?? []),
+                    InstructionsSection(
+                        instructions: detail.analyzedInstructions ?? []),
                     if (detail.nutrition != null &&
                         detail.nutrition!.nutrients.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 26.0, bottom: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Nutrition',
-                                style: Theme.of(context).textTheme.titleLarge),
-                            const SizedBox(height: 10),
-                            Card(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18)),
-                              elevation: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Wrap(
-                                  spacing: 8,
-                                  runSpacing: 6,
-                                  children: detail.nutrition!.nutrients
-                                      .take(8)
-                                      .map((n) => Chip(
-                                            label: Text(
-                                                '${n.name}: ${n.amount}${n.unit}'),
-                                          ))
-                                      .toList(),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      NutritionSection(nutrients: detail.nutrition!.nutrients),
                   ],
                 ),
               ),
@@ -291,20 +140,84 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
       return const Scaffold(body: Center(child: Text('No details found.')));
     }
   }
-}
 
-class _InfoIconText extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _InfoIconText({required this.icon, required this.label});
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.green[400], size: 26),
-        const SizedBox(height: 5),
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-      ],
+  Scaffold errorWidget(RecipeDetailState state, bool isDark) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.redAccent,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              state.error.toString().contains('The connection errored:')
+                  ? "Check your internet connection\n and press on reload"
+                  : state.error.toString().contains(
+                          'This exception was thrown because the response has a status code')
+                      ? "Your Token has expired"
+                      : state.error ?? 'Something went wrong',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
+
+  Widget _buildHeaderImage(String imageUrl, int id) => Stack(
+        fit: StackFit.expand,
+        children: [
+          Hero(
+            tag: 'recipe_image_$id',
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (c, o, s) => const ColoredBox(color: Colors.grey),
+            ),
+          ),
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.black26, Colors.transparent, Colors.black12],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+        ],
+      );
+
+  Widget _buildFavoriteButton(bool isFav, favoritesNotifier, Recipe detail) =>
+      Padding(
+        padding: const EdgeInsets.only(right: 16.0, top: 8),
+        child: CircleAvatar(
+          backgroundColor: Colors.white70,
+          child: IconButton(
+            icon: Icon(
+              isFav ? Icons.favorite : Icons.favorite_border,
+              color: Colors.red[400],
+            ),
+            onPressed: () {
+              if (isFav) {
+                favoritesNotifier.removeFavorite(detail.id);
+              } else {
+                favoritesNotifier.addFavorite(Recipe(
+                  id: detail.id,
+                  title: detail.title,
+                  image: detail.image,
+                  imageType: 'png',
+                ));
+              }
+            },
+          ),
+        ),
+      );
 }

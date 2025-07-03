@@ -19,7 +19,11 @@ class FavoritesPage extends ConsumerWidget {
         ref.watch(connectivityProvider); // Listen to connectivity stream
     final favoriteRecipesAsync = ref.watch(favoriteRecipesProvider);
     final favoritesNotifier = ref.read(favoritesProvider.notifier);
+// Get the width of the screen for calculating aspect ratio
+    double screenWidth = MediaQuery.of(context).size.width;
 
+    // Dynamically calculate childAspectRatio based on screen width
+    double childAspectRatio = screenWidth / (screenWidth * 1.2);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -53,7 +57,32 @@ class FavoritesPage extends ConsumerWidget {
 
             return favoriteRecipesAsync.when(
               loading: () => _FavoritesShimmer(),
-              error: (e, st) => Center(child: Text('Failed to load favorites')),
+              error: (e, st) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.restart_alt,
+                      size: 64,
+                      color: const Color(0xFF4ECDC4),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      e.toString().contains('The connection errored:')
+                          ? "Check your internet connection\n and press on reload"
+                          : e.toString().contains(
+                                  'This exception was thrown because the response has a status code')
+                              ? "Your Token has expired"
+                              : e.toString() ?? 'Something went wrong',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               data: (recipes) {
                 if (isOnline) {
                   // If online, show fetched recipes
@@ -77,10 +106,9 @@ class FavoritesPage extends ConsumerWidget {
 
                   return GridView.builder(
                     itemCount: recipes.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.75,
+                      childAspectRatio: childAspectRatio,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
                     ),

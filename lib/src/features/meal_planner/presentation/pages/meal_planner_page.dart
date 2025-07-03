@@ -237,8 +237,32 @@ class MealPlannerPage extends HookConsumerWidget {
                 child: favoriteRecipesAsync.when(
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (e, st) =>
-                      Center(child: Text('Error loading favorites')),
+                  error: (e, st) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.restart_alt,
+                          size: 64,
+                          color: const Color(0xFF4ECDC4),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          e.toString().contains('The connection errored:')
+                              ? "Check your internet connection\n and press on reload"
+                              : e.toString().contains(
+                                      'This exception was thrown because the response has a status code')
+                                  ? "Your Token has expired"
+                                  : e.toString() ?? 'Something went wrong',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   data: (List<Recipe> favorites) {
                     return ListView.builder(
                       itemCount: daysOfWeek.length,
