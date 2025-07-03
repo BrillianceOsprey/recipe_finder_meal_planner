@@ -73,7 +73,7 @@ class FavoritesPage extends ConsumerWidget {
                           : e.toString().contains(
                                   'This exception was thrown because the response has a status code')
                               ? "Your Token has expired"
-                              : e.toString() ?? 'Something went wrong',
+                              : e.toString(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
