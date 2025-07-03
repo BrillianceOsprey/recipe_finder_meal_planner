@@ -11,7 +11,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  Future<void> _onDonePress(BuildContext context) async {
+  Future<void> _onDonePress() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool("isFirstLaunch", false);
     if (!mounted) return;
@@ -21,7 +21,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Future<void> _onSkipPress(BuildContext context) async {
+  Future<void> _onSkipPress() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool("isFirstLaunch", false);
     if (!mounted) return;
@@ -81,8 +81,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     return IntroductionScreen(
       pages: pages,
-      onDone: () => _onDonePress(context),
-      onSkip: () => _onSkipPress(context),
+      onDone: _onDonePress,
+      onSkip: _onSkipPress,
       showSkipButton: true,
       skip: const Text('Skip'),
       next: const Text('Next'),

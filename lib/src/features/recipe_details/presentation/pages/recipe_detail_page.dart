@@ -58,6 +58,7 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
             SliverAppBar(
               expandedHeight: 280,
               pinned: true,
+              foregroundColor: Colors.white,
               stretch: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Stack(
