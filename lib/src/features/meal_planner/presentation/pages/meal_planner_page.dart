@@ -162,10 +162,12 @@ class MealPlannerPage extends HookConsumerWidget {
                 ),
               );
               if (confirm == true) {
-                ref.read(mealPlanControllerProvider.notifier).clearAll();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("All meal plans cleared!")),
-                );
+                if (context.mounted) {
+                  ref.read(mealPlanControllerProvider.notifier).clearAll();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("All meal plans cleared!")),
+                  );
+                }
               }
             },
           ),
