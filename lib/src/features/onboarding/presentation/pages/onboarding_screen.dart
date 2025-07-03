@@ -3,8 +3,33 @@ import 'package:introduction_screen/introduction_screen.dart';
 import 'package:recipe_finder_meal_planner/src/features/wrapper/presentation/wrapper_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class OnboardingScreen extends StatelessWidget {
+class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  Future<void> _onDonePress(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("isFirstLaunch", false);
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const WrapperPage()),
+    );
+  }
+
+  Future<void> _onSkipPress(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("isFirstLaunch", false);
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const WrapperPage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +100,6 @@ class OnboardingScreen extends StatelessWidget {
   }
 
   // Function for image widget
-
   Widget _buildImage(String path) {
     return Align(
       alignment: Alignment.bottomCenter,
@@ -85,24 +109,6 @@ class OnboardingScreen extends StatelessWidget {
         width: 300.0,
         fit: BoxFit.contain,
       ),
-    );
-  }
-
-  _onDonePress(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("isFirstLaunch", false);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const WrapperPage()), // Home screen
-    );
-  }
-
-  _onSkipPress(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("isFirstLaunch", false);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const WrapperPage()), // Home screen
     );
   }
 }
