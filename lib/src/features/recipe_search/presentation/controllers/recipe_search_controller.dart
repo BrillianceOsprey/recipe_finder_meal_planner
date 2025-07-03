@@ -46,7 +46,7 @@ class RecipeSearchController extends StateNotifier<RecipeSearchState> {
 
   RecipeSearchController(this.repository) : super(RecipeSearchState());
 
-  List<String> _currentIngredients = [];
+  List<String> currentIngredients = [];
 
   Future<void> search(List<String> ingredients) async {
     state = state.copyWith(
@@ -57,7 +57,7 @@ class RecipeSearchController extends StateNotifier<RecipeSearchState> {
       isLoadingMore: false,
       recipes: [],
     );
-    _currentIngredients = List.from(ingredients);
+    currentIngredients = List.from(ingredients);
 
     try {
       final results = await repository.searchRecipes(

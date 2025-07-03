@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../data/repositories/recipe_detail_repository.dart';
-import '../../data/repositories/recipe_detail_repository_impl.dart';
 import '../../domain/models/recipe_detail.dart';
 
 enum RecipeDetailStatus { initial, loading, loaded, error }

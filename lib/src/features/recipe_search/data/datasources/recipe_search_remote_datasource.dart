@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../../domain/models/recipe.dart';
+
 import '../../../../core/network/api_client.dart';
+import '../../domain/models/recipe.dart';
 
 class RecipeSearchRemoteDatasource {
   final ApiClient apiClient;

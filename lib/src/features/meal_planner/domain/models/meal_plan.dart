@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import '../../../recipe_search/domain/models/recipe.dart';
 
 part 'meal_plan.g.dart';
 

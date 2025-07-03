@@ -1,7 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../favorites/presentation/controllers/favorite_provider.dart';
 import '../../../recipe_details/presentation/pages/recipe_detail_page.dart';
 import '../../domain/models/recipe.dart';
@@ -94,8 +93,6 @@ class _RecipeSearchPageState extends ConsumerState<RecipeSearchPage>
   Widget build(BuildContext context) {
     final state = ref.watch(recipeSearchControllerProvider);
     final favorites = ref.watch(favoritesProvider);
-    final favoritesNotifier = ref.read(favoritesProvider.notifier);
-    // final isFav = favorites.any((r) => r.id == state.recipeDetail?.id);
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -195,8 +192,8 @@ class _RecipeSearchPageState extends ConsumerState<RecipeSearchPage>
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? Colors.black.withOpacity(0.3)
-                : Colors.black.withOpacity(0.08),
+                ? Colors.black.withValues(alpha: 0.3)
+                : Colors.black.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -301,7 +298,7 @@ class _RecipeSearchPageState extends ConsumerState<RecipeSearchPage>
                   borderRadius: BorderRadius.circular(25),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF6B6B).withOpacity(0.3),
+                      color: const Color(0xFFFF6B6B).withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -357,7 +354,7 @@ class _RecipeSearchPageState extends ConsumerState<RecipeSearchPage>
                 borderRadius: BorderRadius.circular(16),
               ),
               elevation: 8,
-              shadowColor: const Color(0xFF4ECDC4).withOpacity(0.4),
+              shadowColor: const Color(0xFF4ECDC4).withValues(alpha: 0.4),
             ),
           ),
         ),
@@ -377,7 +374,7 @@ class _RecipeSearchPageState extends ConsumerState<RecipeSearchPage>
                 borderRadius: BorderRadius.circular(16),
               ),
               elevation: 8,
-              shadowColor: const Color(0xFFFF6B6B).withOpacity(0.4),
+              shadowColor: const Color(0xFFFF6B6B).withValues(alpha: 0.4),
             ),
           ),
         ),
@@ -517,8 +514,8 @@ class _RecipeSearchPageState extends ConsumerState<RecipeSearchPage>
               boxShadow: [
                 BoxShadow(
                   color: isDark
-                      ? Colors.black.withOpacity(0.3)
-                      : Colors.black.withOpacity(0.08),
+                      ? Colors.black.withValues(alpha: 0.3)
+                      : Colors.black.withValues(alpha: 0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -571,7 +568,7 @@ class _RecipeSearchPageState extends ConsumerState<RecipeSearchPage>
                                         end: Alignment.bottomCenter,
                                         colors: [
                                           Colors.transparent,
-                                          Colors.black.withOpacity(0.1),
+                                          Colors.black.withValues(alpha: 0.1),
                                         ],
                                       ),
                                     ),
@@ -689,7 +686,7 @@ class _RecipeSearchPageState extends ConsumerState<RecipeSearchPage>
           borderRadius: BorderRadius.circular(16),
         ),
         elevation: 8,
-        shadowColor: const Color(0xFFFFE66D).withOpacity(0.4),
+        shadowColor: const Color(0xFFFFE66D).withValues(alpha: 0.4),
       ),
       child: const Text(
         'Load More Recipes',
