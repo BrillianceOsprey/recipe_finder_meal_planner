@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:recipe_finder_meal_planner/src/features/wrapper/presentation/wrapper_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/utils/image_constants.dart';
 import '../../../onboarding/presentation/pages/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -45,8 +46,9 @@ class SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset('assets/logo/meal_match.png'), // Splash logo image
+        child: Image.asset(appLogo), // Splash logo image
       ),
     );
   }

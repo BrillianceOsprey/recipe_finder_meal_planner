@@ -3,6 +3,8 @@ import 'package:introduction_screen/introduction_screen.dart';
 import 'package:recipe_finder_meal_planner/src/features/wrapper/presentation/wrapper_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/utils/image_constants.dart';
+
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -37,7 +39,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       PageViewModel(
         title: "Welcome to Meal Planner",
         body: "Find, plan, and enjoy your meals all week.",
-        image: _buildImage('assets/onboarding/meal_planer.png'),
+        image: _buildImage(onboarding1),
         decoration: const PageDecoration(
           boxDecoration: BoxDecoration(
             gradient: LinearGradient(
@@ -51,7 +53,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       PageViewModel(
         title: "Save Your Favorite Recipes",
         body: "Save and organize your meals with ease.",
-        image: _buildImage('assets/onboarding/favorites.png'),
+        image: _buildImage(onboarding2),
         decoration: const PageDecoration(
           boxDecoration: BoxDecoration(
             gradient: LinearGradient(
@@ -65,7 +67,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       PageViewModel(
         title: "Create a Weekly Meal Plan",
         body: "Plan meals for the week and stay on track.",
-        image: _buildImage('assets/onboarding/weekly_plan.png'),
+        image: _buildImage(onboarding3),
         decoration: const PageDecoration(
           boxDecoration: BoxDecoration(
             gradient: LinearGradient(

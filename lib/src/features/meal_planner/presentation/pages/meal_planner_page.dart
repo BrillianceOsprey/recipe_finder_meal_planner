@@ -259,6 +259,7 @@ class MealPlannerPage extends HookConsumerWidget {
                           margin: const EdgeInsets.symmetric(
                               vertical: 8, horizontal: 16),
                           child: Card(
+                            color: Colors.white,
                             elevation: 4,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(18)),
@@ -325,7 +326,13 @@ class MealPlannerPage extends HookConsumerWidget {
                                                   height: 46,
                                                   fit: BoxFit.cover,
                                                   placeholder: (context, url) =>
-                                                      const CircularProgressIndicator(), // Show a loading indicator while the image is loading
+                                                      Center(
+                                                    child: SizedBox(
+                                                        height: 20,
+                                                        width: 20,
+                                                        child:
+                                                            const CircularProgressIndicator()),
+                                                  ), // Show a loading indicator while the image is loading
                                                   errorWidget:
                                                       (context, url, error) =>
                                                           const Icon(
@@ -511,8 +518,14 @@ class MealPlannerPage extends HookConsumerWidget {
                                         width: 48,
                                         height: 48,
                                         fit: BoxFit.cover,
-                                        placeholder: (context, url) =>
-                                            const CircularProgressIndicator(), // Show a loading indicator while the image is loading
+                                        placeholder: (context, url) => Center(
+                                          child: SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child:
+                                                const CircularProgressIndicator(),
+                                          ),
+                                        ), // Show a loading indicator while the image is loading
                                         errorWidget: (context, url, error) =>
                                             const Icon(
                                           Icons.restaurant,

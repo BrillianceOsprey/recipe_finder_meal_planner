@@ -21,6 +21,7 @@ class FavoritesPage extends ConsumerWidget {
     final favoritesNotifier = ref.read(favoritesProvider.notifier);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60), // Customize the height as needed
         child: Container(
@@ -95,6 +96,7 @@ class FavoritesPage extends ConsumerWidget {
                           );
                         },
                         child: Card(
+                          color: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -114,19 +116,23 @@ class FavoritesPage extends ConsumerWidget {
                                             height: 120,
                                             fit: BoxFit.cover,
                                             placeholder: (context, url) =>
-                                                SizedBox(
-                                              height: 50,
-                                              width: 50,
-                                              child:
-                                                  const CircularProgressIndicator(),
-                                            ), // Show a loading indicator while the image is loading
+                                                Center(
+                                              child: SizedBox(
+                                                height:
+                                                    50, // Fixed size for the loading indicator
+                                                width:
+                                                    50, // Fixed size for the loading indicator
+                                                child:
+                                                    const CircularProgressIndicator(),
+                                              ),
+                                            ),
                                             errorWidget:
                                                 (context, url, error) =>
                                                     const Icon(
                                               Icons.restaurant,
                                               size: 46,
                                               color: Colors.teal,
-                                            ), // Show an error icon if the image fails to load
+                                            ),
                                           )
                                         : Container(
                                             height: 120,
@@ -260,6 +266,7 @@ class FavoritesPage extends ConsumerWidget {
                         // );
                       },
                       child: Card(
+                        color: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -278,12 +285,13 @@ class FavoritesPage extends ConsumerWidget {
                                           imageUrl: recipe.image!,
                                           height: 120,
                                           fit: BoxFit.cover,
-                                          placeholder: (context, url) =>
-                                              SizedBox(
-                                            height: 50,
-                                            width: 50,
-                                            child:
-                                                const CircularProgressIndicator(),
+                                          placeholder: (context, url) => Center(
+                                            child: SizedBox(
+                                              height: 50,
+                                              width: 50,
+                                              child:
+                                                  const CircularProgressIndicator(),
+                                            ),
                                           ), // Show a loading indicator while the image is loading
                                           errorWidget: (context, url, error) =>
                                               const Icon(
